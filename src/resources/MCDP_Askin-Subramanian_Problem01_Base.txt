@@ -1,0 +1,24 @@
+#-----FILE-DETAILS------------------------------------
+File details=R. Askin and S. Subramanian Problem.
+Version=1.0
+Created by=
+Date created=Jun 16, 2015
+Modified by=
+Date modified=
+#-----BECHMARK-INFO-----------------------------------
+Benchmark info=R. Askin and S. Subramanian
+References=
+BibTeX=\@article{2108416,\author = {R. Askin and S. Subramanian},\title = {{A Cost-Based Heuristic for Group Technology Configuration}},\year = {1987},\masid = {2108416}\}	
+Best Solution=
+#-----MCDP-VALUES-------------------------------------
+Machines=14
+Parts=24
+Cells=0
+Mmax=0
+Mmin=0
+Sum=0
+Var_1=value
+Var_2=value
+Var_3=value
+Matrix=\
+0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 \0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 \0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 \0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1 0 0 1 0 \0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 1 0 \1 0 0 0 0 0 0 0 0 1 1 1 0 1 1 1 0 0 0 0 0 0 0 0 \0 1 1 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 \1 0 0 0 0 1 0 0 0 1 0 1 0 1 1 1 0 0 0 0 0 0 0 0 \0 0 0 0 0 1 0 0 0 1 0 1 1 0 1 0 0 0 0 0 0 0 0 0 \0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 \0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 \0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 \0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 \0 0 0 0 0 0 0 0 0 1 1 0 1 0 1 0 0 0 0 0 0 0 0 0

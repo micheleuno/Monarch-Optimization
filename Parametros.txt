@@ -1,0 +1,7 @@
+Iteraciones=150
+Población=50
+Smax=4.0f
+BAR=0.416f
+peri=0.2f
+p=0.416f
+Ejecuciones=31
