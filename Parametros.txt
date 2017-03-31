@@ -1,7 +1,19 @@
-Iteraciones=150
+Iteraciones=120
 Población=50
 Smax=4.0f
 BAR=0.416f
 peri=0.2f
 p=0.416f
 Ejecuciones=31
+It s/mod - Modo s/mod - Step
+1-6-10
+---------
+Iteraciones=120
+Población=50
+Smax=4.0f
+BAR=0.416f
+peri=0.2f
+p=0.416f
+Ejecuciones=31
+It s/mod - Modo s/mod - Step
+1-10-10

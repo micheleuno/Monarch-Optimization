@@ -41,7 +41,7 @@ public class Main {
 		float iterationOptAvg = 0f;
 		long ejecutionTimeAvg = 0;
 		long tiempoInicio,tiempoFin = 0;
-		
+		String ParamAutonomous = null;
 		Logger log = Logger.getLogger(Main.class);
 		String finLectura="Stop";
 		String parametros[];
@@ -65,6 +65,8 @@ public class Main {
 			p=Float.parseFloat(parametros[1]);
 			parametros = (br.readLine().split("="));
 			executions=Integer.parseInt(parametros[1]);
+			br.readLine();
+			ParamAutonomous=br.readLine();
 			finLectura=br.readLine();
 		}
 
@@ -73,14 +75,14 @@ public class Main {
 		ArrayList<String> dataFiles = benchmark.readSetFileBenchmark("/resources/MCDP_BENCHMARK_FILES.txt");
 		
 		ArrayList<MCDPData> modelSet = benchmark.getSetModelsByNames(dataFiles);
-		System.out.println("Read all filenamessss");
+		System.out.println("Read all filenames");
 		Iterator<MCDPData> iterator = modelSet.iterator();
 
 		String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
 		String benchmarkFileConfig = "n_" + numberPoblation + "_SM_" + SMax + "_Bar_" + BAR + "_peri_"+ peri + "_p_"+ p + "_it_"
 				+ numberIteration;
 
-		String currentDirectory = timeStamp + "_" + benchmarkFileConfig;
+		String currentDirectory = timeStamp + "_" + benchmarkFileConfig+" "+ParamAutonomous;
 		String folder = "Results";
 		String directory = folder + "/" + currentDirectory;
 
@@ -120,7 +122,7 @@ public class Main {
 				MonarchOptimization metaheuristic = new MonarchOptimization(numberPoblation, numberIteration, model, SMax,
 						BAR,peri,p, directory);
 				tiempoInicio=System.currentTimeMillis();
-				variables = metaheuristic.run(i,executions);
+				variables = metaheuristic.run(ParamAutonomous,i,executions);
 				tiempoFin=System.currentTimeMillis();
 				
 				iterationOptAvg = (float) (variables[0] + iterationOptAvg);
@@ -138,13 +140,13 @@ public class Main {
 			System.out.println("Mean Best Fitness:[" + mean_fitness + "] " + "Best Solution: [" + best_fitness + "]");
 			Statistics.createTable(numIteracion, model.mmax, model.getBestSGlobal(), best_fitness, mean_fitness,model.getIdentificator(), currentDirectory,model.getC(),iterationOptAvg,ejecutionTimeAvg,variables,model.M,model.P);
 			mean_fitness = 0;
-			best_fitness = 999999999;
+			
 			numIteracion++;
 
 			System.out.println("Problem [" + model.getIdentificator() + "]");
-
-			System.out.println("Best solution global " + optimal_global);
-
+			double RPD = ((double)(optimal_global - best_fitness) / optimal_global)*100;
+			System.out.println("Best solution global " + optimal_global+" RPD: "+RPD);
+			best_fitness = 999999999;
 			long endBenchmark = System.currentTimeMillis();
 			Date resultdate2 = new Date(endBenchmark);
 			System.out.println("Process End: " + sdf.format(resultdate2));

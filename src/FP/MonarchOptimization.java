@@ -40,6 +40,7 @@ public class MonarchOptimization {
 
 	private int matrizSimilitud[][];
 	private int modoDelta = 1;
+	private int modoPopulation = 1;
 	private double varMin = 9999f;
 	private double varMax = 0f;
 	// Dataset (benchmark)
@@ -72,7 +73,7 @@ public class MonarchOptimization {
 		this.directoryName = directory;
 	}
 
-	public double[] run( int ejecucion, int ejecuciones) {
+	public double[] run( String paramAutonomous,int ejecucion, int ejecuciones) {
 		
 		matrizSimilitud = new int[data.M][data.M];
 		calcularSimilitudMaquinas();
@@ -82,48 +83,51 @@ public class MonarchOptimization {
 		int iterationOpt = 0;
 		int optimo = 9999999;
 		double[] var = new double[3];
-		int iterationEstancadap = 0;
+		int iterationEstancadap = 0,iterationEstancadaPopulation=0;
 		rn = new Random();
-		//PrintSolutions(0);
+		
 		while (iteration < this.numberIteration) {
-
-		/*	try {
-				System.in.read();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	PrintSolutions(0);*/
+		
+		//PrintSolutions(iteration);
 			NP1 = (int) Math.round(p*(poblation.size())); //calcular poblacion land1
 			NP2 = poblation.size() - NP1; 		// calcular poblacion land2
 			numberPoblation=poblation.size();
 				for(int i=0;i<NP1;i++){		//Para la primera poblacion		
 				tempSolution = new Solution(poblation.get(i).getMachine_cell(), poblation.get(i).getPart_cell(),poblation.get(i).getFitness());
-				GenerateMovementMigrationOperator(i);	//primer movimiento
+			GenerateMovementMigrationOperator(i);	//primer movimiento
 			
-					if (tempFitness < poblation.get(i).getFitness()) {  //actualizar segun el algoritmo ""greedy""
+				if (tempSolution.getFitness() < poblation.get(i).getFitness()) {  //actualizar segun el algoritmo ""greedy""
 						poblation.get(i).setMachine_cell(tempSolution.getMachine_cell());
 						poblation.get(i).setPart_cell(tempSolution.getPart_cell());
-						poblation.get(i).setFitness(tempFitness);
+						poblation.get(i).setFitness(tempSolution.getFitness());
 					}
 				}
 				chooseBestSolutionInPoblation(); //actualizar la mejor solucion
 				chooseWorstSolutionInPoblation(); //actualizar la peor solucion
 			
 				for(int i=NP1;i<poblation.size();i++){
-					tempSolution = new Solution(poblation.get(i).getMachine_cell(), poblation.get(i).getPart_cell(),poblation.get(i).getFitness()); 
-					tempSolution2 = new Solution(poblation.get(i).getMachine_cell(), poblation.get(i).getPart_cell(),poblation.get(i).getFitness());
+					
+					//System.out.println(poblation.get(i).getFitness()+" actual "+Arrays.toString(matrixToVector( poblation.get(i).getMachine_cell())));
+					tempSolution = new Solution(poblation.get(i).getMachine_cell(), poblation.get(i).getPart_cell(),poblation.get(i).getFitness());
 					GenerateMovementButterflyAdjustingOperator(i,iteration);
+					tempSolution2 = tempSolution;
+					tempSolution = new Solution(poblation.get(i).getMachine_cell(), poblation.get(i).getPart_cell(),poblation.get(i).getFitness());
 					generateCrossoverOperator(i);
-
-					if (tempSolution2.getFitness()<poblation.get(i).getFitness()&&tempSolution2.getFitness() < tempFitness) { //dependiendo de cual sea mejor es la que se queda
+			
+				
+					if (tempSolution2.getFitness()<tempSolution.getFitness()) { //dependiendo de cual sea mejor es la que se queda
+					//	System.out.println(poblation.get(i).getFitness()+" temp2 "+Arrays.toString(matrixToVector(tempSolution2.getMachine_cell()))+" Fitnss "+tempSolution2.getFitness());
 						poblation.get(i).setMachine_cell(tempSolution2.getMachine_cell());
 						poblation.get(i).setPart_cell(tempSolution2.getPart_cell());
-						poblation.get(i).setFitness(tempSolution2.getFitness());					
-					}
-					if(tempFitness<poblation.get(i).getFitness()){
+						poblation.get(i).setFitness(tempSolution2.getFitness());	
+					
+					}else{
+//						System.out.println(poblation.get(i).getFitness()+" temp1 "+Arrays.toString(matrixToVector(tempSolution.getMachine_cell()))+" Fitnss "+tempSolution.getFitness());
+
 						poblation.get(i).setMachine_cell(tempSolution.getMachine_cell());
 						poblation.get(i).setPart_cell(tempSolution.getPart_cell());
-						poblation.get(i).setFitness(tempFitness);					
+						poblation.get(i).setFitness(tempSolution.getFitness());		
+						
 					}
 				}
 			vector_fitness[iteration] = bestSolution.getFitness();
@@ -131,15 +135,17 @@ public class MonarchOptimization {
 			if(optimo> bestSolution.getFitness()){
 				optimo=bestSolution.getFitness();
 				iterationOpt=iteration;	
-				iterationEstancadap=0;
+				iterationEstancadap=iterationEstancadaPopulation=0;
 				
 			}else{
 				iterationEstancadap++;
+				iterationEstancadaPopulation++;
 			}
-			//PrintSolutions(iteration);
-		//	iterationEstancadap=AutonomousSearchP(iterationEstancadap);	
+		//	PrintSolutions(iteration);
+			//iterationEstancadap=AutonomousSearchP(iterationEstancadap,paramAutonomous);	
+			iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
 		}	
-	//	Statistics.createConvergenciGraph(data.getIdentificator(), vector_fitness, directoryName,ejecucion,ejecuciones);
+	//Statistics.createConvergenciGraph(data.getIdentificator(), vector_fitness, directoryName,ejecucion,ejecuciones);
 		var[0]=iterationOpt;
 		var[1]=varMin;
 		var[2]=varMax;
@@ -150,8 +156,8 @@ public class MonarchOptimization {
 		boolean constraintOK = false;
 		int[] vectorMaquinaActual = new int[data.M];
 		int[] vectorAux = new int[data.M];
-		vectorMaquinaActual = matrixToVector(tempSolution.getMachine_cell());
-	//	System.out.println("\nAnterior: "+Arrays.toString(matrixToVector(tempSolution.getMachine_cell()))+" Fit "+tempSolution.getFitness());
+		Solution auxSolution=tempSolution;
+		vectorMaquinaActual = matrixToVector(poblation.get(butterfly).getMachine_cell());
 		while (constraintOK == false) {	
 			vectorAux = vectorMaquinaActual;
 			for (int i = 0; i < data.M; i++) { //para todos los elementos de la mariposa
@@ -167,61 +173,71 @@ public class MonarchOptimization {
 					 vectorAux[i] = GetVectorValue(i,poblation.get(randomInt).getMachine_cell());				
 				}
 			}
-			
-			constraintOK=CheclConstraints(butterfly);
+			auxSolution = vectorToMatrix(auxSolution,vectorAux); 
+			constraintOK=checkconstraints(butterfly,auxSolution);
 		}
-		tempSolution = vectorToMatrix(tempSolution,vectorAux); 
-		constraintOK=CheclConstraints(butterfly);
-		//System.out.println("despues:  "+Arrays.toString(matrixToVector(tempSolution.getMachine_cell()))+" Fit "+tempFitness);
-		
+			auxSolution.setFitness(updateFitness(auxSolution));
 			
+		tempSolution=auxSolution;
 	}	
 
 		
 	@SuppressWarnings("static-access")
 	void GenerateMovementButterflyAdjustingOperator(int butterfly,int iteration){
+		Solution auxSolution=tempSolution;
 		boolean constraintOK = false;
-		tempFitness = 0;
 		Vuelo_levy L = new Vuelo_levy();
 		double step_levy;
 		int[] vectorMaquinaBest = new int[data.M];
 		int[] vectorMaquinaActual = new int[data.M];
 		int[] vectorAux = new int[data.M];
-		vectorMaquinaActual = matrixToVector(tempSolution.getMachine_cell());
+		vectorMaquinaActual = matrixToVector(poblation.get(butterfly).getMachine_cell());
 		vectorMaquinaBest = matrixToVector(bestSolution.getMachine_cell());	
+	//	System.out.println(poblation.get(butterfly).getFitness()+" actual "+Arrays.toString(matrixToVector(poblation.get(butterfly).getMachine_cell())));
+	//System.out.println(bestSolution.getFitness()+" mejor "+Arrays.toString(vectorMaquinaBest));
 		while (constraintOK == false) {	
 			vectorAux = vectorMaquinaActual;
 			do {
-				step_levy = L.levy_step(0.1f, 1);				
+				step_levy = L.levy_step(1f, 1);				
 			} while (Double.isNaN(step_levy));
 			
 			for (int i = 0; i < data.M; i++) { //para todos los elementos de la mariposa
 				double r=Math.random();
 				if(r<=p){ //moviemiento 1
-			
+					// System.out.println("r "+ r+" p " +p);
 				vectorAux[i] = vectorMaquinaBest[i]; //sacar de la mejor mariposa
 				}
 				else{//moviemiento 2				
-					int randomInt = ThreadLocalRandom.current().nextInt(NP1, poblation.size());//random de la segunda poblacion
+					int randomInt = ThreadLocalRandom.current().nextInt(NP1,poblation.size() );//random de la segunda poblacion
 					 vectorAux[i] =GetVectorValue(i,poblation.get(randomInt).getMachine_cell());
+					
 					 if(r>BAR){
 						 double alpha = SMax/iteration;
-					 vectorAux[i] = aproximar(vectorAux[i]+alpha*(step_levy-0.5));
+						
+						 vectorAux[i] = aproximar(vectorAux[i]+alpha*(step_levy-0.5));
 					 }
 				}
 			}
 			
-			constraintOK = CheclConstraints(butterfly);
+			auxSolution = vectorToMatrix(auxSolution,vectorAux);
+			constraintOK = checkconstraints(butterfly,auxSolution);
 		}
-		tempSolution = vectorToMatrix(tempSolution,vectorAux);
-		constraintOK=CheclConstraints(butterfly);
+		auxSolution.setFitness(updateFitness(auxSolution));
+		//System.out.println(auxSolution.getFitness()+" final "+Arrays.toString(matrixToVector(auxSolution.getMachine_cell())));
+		tempSolution=auxSolution;
+	/*	try {
+			System.in.read();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 	}
 	
 	void  generateCrossoverOperator(int butterfly){
+		Solution auxSolution=tempSolution;
 		int[] vectorMaquinaActual = new int[data.M];
 		int[] vectorNewButterfly = new int[data.M];
 		int[] vectorMaquinaPreviousMov = new int[data.M]; //sacado del movimiento previo
-		auxSolution = tempSolution;
 		boolean constraintOK = false;
 		float CR=0f;
 		float movimiento=0;
@@ -232,15 +248,13 @@ public class MonarchOptimization {
 			CR = calculateCR(butterfly);
 			for (int i = 0; i < data.M; i++) { 
 				movimiento=vectorMaquinaPreviousMov[i]*(1-CR)+vectorMaquinaActual[i]*CR;
-				vectorNewButterfly[i] =  aproximar((float)(movimiento-1));
+				vectorNewButterfly[i] =  aproximar((float)(movimiento));
 			}
-			tempSolution = vectorToMatrix(tempSolution,vectorNewButterfly);
-			constraintOK = CheclConstraints(butterfly);			
+			auxSolution = vectorToMatrix(auxSolution,vectorNewButterfly);
+			constraintOK = checkconstraints(butterfly,auxSolution);			
 		}
-		tempSolution2 = tempSolution;
-		tempSolution=auxSolution;		
-		calculateFitness(tempSolution2);
-		constraintOK = CheclConstraints(butterfly);
+		auxSolution.setFitness(updateFitness(auxSolution));
+		tempSolution=auxSolution;
 	}
 	
 	float calculateCR(int butterfly){
@@ -249,29 +263,97 @@ public class MonarchOptimization {
 		return CR;		
 	}
 	
+	public int AutonomousSearchP(int iteraciones,String ParamAutonomous){
+		String parametros[];
+		parametros= ParamAutonomous.split("-");
+		int CantIntEstan = Integer.parseInt(parametros[0]);
+		int CantModoEstan = Integer.parseInt(parametros[1]);
+		double step=Double.parseDouble(parametros[2]);
+		
+		switch (modoDelta){
+		case 0: 
+			if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&p+step<=1.01f){ //aumentar delta de probabilidad
+				p = p+step;	
+			if(p>varMax)
+				varMax=p;
+				}
+				if(iteraciones>CantModoEstan){ //Si van dos aumentos y aun no mejora
+					modoDelta=1;						 //Se cambia al modo de disminuir
+					iteraciones=0;
+				}
+								break;
+		case 1: if(iteraciones>=CantIntEstan&&p-step>=0.099f){ //disminuir delta de probabilidad
+			p = p-step;		
+			if(p<varMin)
+				varMin=p;
+			}
+			if(iteraciones>CantModoEstan){ //Si van dos aumentos y aun no mejora
+				modoDelta=0;						 //Se cambia al modo de aumentar
+				iteraciones=0;
+			}
+			
+			break;
+		}
+	//	System.out.println("Iteracion estancada: "+iteraciones+" Delta: "+delta+" modo: ");
+		
+		SMax=p;
+		return iteraciones;
+		
+	}
 	
-	boolean CheclConstraints(int butterfly){
-		boolean constraintOK = false;
-		// Check constraint
-					MCDPModel boctorModel = new MCDPModel(data.A, data.M, data.P, data.C, data.mmax,
-							tempSolution.getMachine_cell(), tempSolution.getPart_cell());
-					constraintOK = boctorModel.checkConstraint();
-
-					if (constraintOK == true) {
-						tempFitness = boctorModel.calculateFitness();
-						this.numAcceptedMoves++;
-						return true;
-					} else {
-						constraintOK = repararSolucion();
-						if (constraintOK == false) {
-							tempSolution = poblation.get(butterfly);
-						} else {
-							tempFitness = boctorModel.calculateFitness();
-							return true;
-						}
-						this.numRejectedMoves++;
+	public int autonomousSearchPopulation(int iteraciones,String ParamAutonomous){
+		String parametros[];
+		parametros= ParamAutonomous.split("-");
+		int CantIntEstan = Integer.parseInt(parametros[0]);
+		int CantModoEstan = Integer.parseInt(parametros[1]);;
+		int step=Integer.parseInt(parametros[2]);
+		switch (modoPopulation){
+		case 0: if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&poblation.size()<=150){ //aumentar la poblacion
+					for(	int i=0;i<step;i++){
+						addRandomSolutionToPoblation();	
 					}
-		return false;
+					if(poblation.size()>varMax)
+						varMax=poblation.size();
+				}
+				if(iteraciones>CantModoEstan){ 
+					modoPopulation=1;					
+					iteraciones=0;
+				}
+								break;
+		case 1: if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&poblation.size()>step){ //disminuir la poblacion
+				for(int i=0;i<step;i++){
+					deleteRandomSolutionToPoblation();	
+				}
+				if(poblation.size()<varMin)
+					varMin=poblation.size();
+			}
+			if(iteraciones>CantModoEstan){ 
+				modoPopulation=0;						
+				iteraciones=0;
+			}
+			
+			break;
+		}
+		return iteraciones;
+		
+	}
+	
+	boolean checkconstraints(int butterfly,Solution solution){
+		boolean constraintOK = false;
+		MCDPModel boctorModel = new MCDPModel(data.A, data.M, data.P, data.C, data.mmax,
+				solution.getMachine_cell(), solution.getPart_cell());
+		constraintOK = boctorModel.checkConstraint();
+		if (constraintOK == true) {
+			this.numAcceptedMoves++;
+			return true;
+		} else {
+			constraintOK = repararSolucion();
+			if (constraintOK == true) {
+				return true;
+			}
+			this.numRejectedMoves++;
+		}
+		return false;	
 	}
 	
 	int[] matrixToVector(int[][] Matrix){
@@ -315,7 +397,7 @@ public class MonarchOptimization {
 
 			for (int k = 0; k < data.C; k++) {
 				for (int i = 0; i < data.M; i++) {
-					tempPart[    i] = tempSolution.getMachine_cell()[i][k] * data.A[i][j];
+					tempPart[i] = tempSolution.getMachine_cell()[i][k] * data.A[i][j];
 				}
 				cellCount[k] = IntStream.of(tempPart).sum();
 			}
@@ -330,7 +412,13 @@ public class MonarchOptimization {
 		}		
 		return tempSolution;
 	}	
-	
+	int updateFitness(Solution solution){
+		MCDPModel boctorModel = new MCDPModel(data.A, data.M, data.P, data.C, data.mmax,
+				solution.getMachine_cell(), solution.getPart_cell());
+		
+		return(boctorModel.calculateFitness());
+		
+	}
 	
 	
 	
@@ -354,47 +442,7 @@ public class MonarchOptimization {
 	}
 	
 	
-public int AutonomousSearchP(int iteraciones){
-		String parametros[];
-		/*parametros= ParamAutonomous.split("-");
-		int CantIntEstan = Integer.parseInt(parametros[0]);
-		int CantModoEstan = Integer.parseInt(parametros[1]);
-		double step=Double.parseDouble(parametros[2]);*/
-		int CantIntEstan = 3;
-		int CantModoEstan = 4;
-		double step=0.3f;
-		double var;
-		var=SMax;
-		switch (modoDelta){
-		case 0: 
-			if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&var+step<=3.01f){ //aumentar delta de probabilidad
-				var = var+step;	
-			if(var>varMax)
-				varMax=var;
-				}
-				if(iteraciones>CantModoEstan){ //Si van dos aumentos y aun no mejora
-					modoDelta=1;						 //Se cambia al modo de disminuir
-					iteraciones=0;
-				}
-								break;
-		case 1: if(iteraciones>=CantIntEstan&&var-step>=0.099f){ //disminuir delta de probabilidad
-			var = var-step;		
-			if(var<varMin)
-				varMin=var;
-			}
-			if(iteraciones>CantModoEstan){ //Si van dos aumentos y aun no mejora
-				modoDelta=0;						 //Se cambia al modo de aumentar
-				iteraciones=0;
-			}
-			
-			break;
-		}
-	//	System.out.println("Iteracion estancada: "+iteraciones+" Delta: "+delta+" modo: ");
-		
-		SMax=var;
-		return iteraciones;
-		
-	}
+
 	
 
 	public void calcularSimilitudMaquinas() {
@@ -498,17 +546,17 @@ public int AutonomousSearchP(int iteraciones){
 	private void deleteRandomSolutionToPoblation(){
 		  Random randomGenerator = new Random();
 		 int randomInt = randomGenerator.nextInt(poblation.size());
-		
+		boolean flag = false;
 		 do{
 			// System.out.println("deleting");
-			 if(poblation.get(randomInt)!=bestSolution){
+			 if(!Arrays.equals(poblation.get(randomInt).getMachine_cell(), bestSolution.getMachine_cell())){
 				// System.out.println("Best solution: "+bestSolution+ " solucion eliminada: "+poblation.get(randomInt).getFitness()+" Random: "+randomInt);
 				 poblation.remove(randomInt);
-				 
+				 flag=true;
 			 }
 				 
 			 randomInt = randomGenerator.nextInt(poblation.size());
-		 }while(poblation.get(randomInt)==bestSolution);
+		 }while(flag==false);
 	}
 	
 
@@ -670,18 +718,15 @@ public int AutonomousSearchP(int iteraciones){
 		promedio=promedio+movimiento;
 		cont++;
 		
-		//aproximado = IntervalDiscretization.IntervalDoubleValue(SShaped.S5(movimiento), data.C, 0, 1)+1;
-		//System.out.println("VALOR MOVIMIENTO: ("+movimiento+") APROXIMADO("+aproximado+")"+"SShaped"+VShaped.V1(movimiento));
-		//System.out.println("Aproximado con vshape: "+aproximado);
-		
 		aproximado = Math.round((float) movimiento);
-		//aproximado = (int) VShaped.V1(movimiento);
+	//	aproximado = (int) VShaped.V2(movimiento);
+	//System.out.println("movimiento: "+movimiento+"Aproximado con aproximar: "+ aproximado);
 		if (aproximado < 1) {
 			aproximado = 1;
 		} else if (aproximado > data.C) {
 			aproximado = data.C;
 		}
-	//System.out.println("movimiento: "+movimiento+"Aproximado con aproximar: "+aproximado);*/
+	
 		return aproximado;
 	}
 
@@ -745,9 +790,18 @@ public int AutonomousSearchP(int iteraciones){
 	private void PrintSolutions(int k){
 		System.out.println("Set "+k+" de soluciones");
 		for(int i=0;i<poblation.size();i++){
+			if (i==NP1){
+				System.out.println("Poblacion 2");
+			}
 			System.out.println(Arrays.toString(matrixToVector(poblation.get(i).getMachine_cell()))+" Fitness " + poblation.get(i).getFitness());
 		}
 		System.out.println("Mejor Solucion: "+bestSolution.getFitness());
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 
