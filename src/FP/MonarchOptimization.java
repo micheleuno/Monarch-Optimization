@@ -88,7 +88,7 @@ public class MonarchOptimization {
 		
 		while (iteration < this.numberIteration) {
 		
-		//PrintSolutions(iteration);
+	//PrintSolutions(iteration);
 			NP1 = (int) Math.round(p*(poblation.size())); //calcular poblacion land1
 			NP2 = poblation.size() - NP1; 		// calcular poblacion land2
 			numberPoblation=poblation.size();
@@ -114,15 +114,15 @@ public class MonarchOptimization {
 					tempSolution = new Solution(poblation.get(i).getMachine_cell(), poblation.get(i).getPart_cell(),poblation.get(i).getFitness());
 					generateCrossoverOperator(i);
 			
-				
-					if (tempSolution2.getFitness()<tempSolution.getFitness()) { //dependiendo de cual sea mejor es la que se queda
+
+			if (tempSolution2.getFitness()<tempSolution.getFitness()&&tempSolution2.getFitness()<(bestSolution.getFitness())) { //dependiendo de cual sea mejor es la que se queda
 					//	System.out.println(poblation.get(i).getFitness()+" temp2 "+Arrays.toString(matrixToVector(tempSolution2.getMachine_cell()))+" Fitnss "+tempSolution2.getFitness());
 						poblation.get(i).setMachine_cell(tempSolution2.getMachine_cell());
 						poblation.get(i).setPart_cell(tempSolution2.getPart_cell());
 						poblation.get(i).setFitness(tempSolution2.getFitness());	
 					
-					}else{
-//						System.out.println(poblation.get(i).getFitness()+" temp1 "+Arrays.toString(matrixToVector(tempSolution.getMachine_cell()))+" Fitnss "+tempSolution.getFitness());
+					}else if(tempSolution.getFitness()<(bestSolution.getFitness())){
+				//	System.out.println(poblation.get(i).getFitness()+" temp1 "+Arrays.toString(matrixToVector(tempSolution.getMachine_cell()))+" Fitnss "+tempSolution.getFitness());
 
 						poblation.get(i).setMachine_cell(tempSolution.getMachine_cell());
 						poblation.get(i).setPart_cell(tempSolution.getPart_cell());
@@ -143,7 +143,7 @@ public class MonarchOptimization {
 			}
 		//	PrintSolutions(iteration);
 			//iterationEstancadap=AutonomousSearchP(iterationEstancadap,paramAutonomous);	
-			iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
+			//iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
 		}	
 	//Statistics.createConvergenciGraph(data.getIdentificator(), vector_fitness, directoryName,ejecucion,ejecuciones);
 		var[0]=iterationOpt;
@@ -158,17 +158,20 @@ public class MonarchOptimization {
 		int[] vectorAux = new int[data.M];
 		Solution auxSolution=tempSolution;
 		vectorMaquinaActual = matrixToVector(poblation.get(butterfly).getMachine_cell());
-		while (constraintOK == false) {	
+		while (constraintOK == false) {
+			int cont = 0;
 			vectorAux = vectorMaquinaActual;
 			for (int i = 0; i < data.M; i++) { //para todos los elementos de la mariposa
 				int randomNum = ThreadLocalRandom.current().nextInt(-100, 100);
 				double r=randomNum*peri;
 				 Random randomGenerator = new Random();
 				 
-				if(r<=p){ //moviemiento 1
+				if(r<=p||cont>=data.M){ //moviemiento 1
+					
 					 int randomInt = randomGenerator.nextInt(NP1); //random de la primera poblacion
 					 vectorAux[i] = GetVectorValue(i,poblation.get(randomInt).getMachine_cell());					 
 				}else{//moviemiento 2
+					cont++;
 					int randomInt = ThreadLocalRandom.current().nextInt(NP1, poblation.size());//random de la segunda poblacion
 					 vectorAux[i] = GetVectorValue(i,poblation.get(randomInt).getMachine_cell());				
 				}
@@ -177,8 +180,9 @@ public class MonarchOptimization {
 			constraintOK=checkconstraints(butterfly,auxSolution);
 		}
 			auxSolution.setFitness(updateFitness(auxSolution));
-			
+
 		tempSolution=auxSolution;
+
 	}	
 
 		
@@ -196,6 +200,7 @@ public class MonarchOptimization {
 	//	System.out.println(poblation.get(butterfly).getFitness()+" actual "+Arrays.toString(matrixToVector(poblation.get(butterfly).getMachine_cell())));
 	//System.out.println(bestSolution.getFitness()+" mejor "+Arrays.toString(vectorMaquinaBest));
 		while (constraintOK == false) {	
+			int cont = 0;
 			vectorAux = vectorMaquinaActual;
 			do {
 				step_levy = L.levy_step(1f, 1);				
@@ -203,12 +208,13 @@ public class MonarchOptimization {
 			
 			for (int i = 0; i < data.M; i++) { //para todos los elementos de la mariposa
 				double r=Math.random();
-				if(r<=p){ //moviemiento 1
-					// System.out.println("r "+ r+" p " +p);
+				if(r<=p&&cont<data.M){ //moviemiento 1
+					cont++;
+					//System.out.println(cont+" "+data.M);
 				vectorAux[i] = vectorMaquinaBest[i]; //sacar de la mejor mariposa
 				}
 				else{//moviemiento 2				
-					int randomInt = ThreadLocalRandom.current().nextInt(NP1,poblation.size() );//random de la segunda poblacion
+					int randomInt = ThreadLocalRandom.current().nextInt(0,NP1 );//random de la segunda poblacion
 					 vectorAux[i] =GetVectorValue(i,poblation.get(randomInt).getMachine_cell());
 					
 					 if(r>BAR){
@@ -802,6 +808,16 @@ public class MonarchOptimization {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	private int getbestSolutionSecondPopulation(){
+		int bestfitness=99999;
+		for(int i=NP1;i<poblation.size();i++){
+			
+			if(bestfitness>poblation.get(i).getFitness()){
+				bestfitness=poblation.get(i).getFitness();
+			}
+		}
+		return bestfitness;
 	}
 
 
