@@ -90,7 +90,7 @@ public class MonarchOptimization {
 		
 		while (iteration < this.numberIteration) {
 		
-	//PrintSolutions(iteration);
+//	PrintSolutions(iteration);
 	Collections.sort(poblation, new compareFitness());//ordenar ascendentemente por fitness
 	
 			NP1 = (int) Math.round(p*(poblation.size())); //calcular poblacion land1
@@ -119,13 +119,13 @@ public class MonarchOptimization {
 					generateCrossoverOperator(i);
 			
 
-			if (tempSolution2.getFitness()<tempSolution.getFitness()&&tempSolution2.getFitness()<(bestSolution.getFitness())) { //dependiendo de cual sea mejor es la que se queda
+			if (tempSolution2.getFitness()<tempSolution.getFitness()&&tempSolution2.getFitness()<(getbestSolutionSecondPopulation())) { //dependiendo de cual sea mejor es la que se queda
 					//	System.out.println(poblation.get(i).getFitness()+" temp2 "+Arrays.toString(matrixToVector(tempSolution2.getMachine_cell()))+" Fitnss "+tempSolution2.getFitness());
 						poblation.get(i).setMachine_cell(tempSolution2.getMachine_cell());
 						poblation.get(i).setPart_cell(tempSolution2.getPart_cell());
 						poblation.get(i).setFitness(tempSolution2.getFitness());	
 					
-					}else if(tempSolution.getFitness()<(bestSolution.getFitness())){
+					}else if(tempSolution.getFitness()<(getbestSolutionSecondPopulation())){
 				//	System.out.println(poblation.get(i).getFitness()+" temp1 "+Arrays.toString(matrixToVector(tempSolution.getMachine_cell()))+" Fitnss "+tempSolution.getFitness());
 
 						poblation.get(i).setMachine_cell(tempSolution.getMachine_cell());
@@ -137,18 +137,19 @@ public class MonarchOptimization {
 			vector_fitness[iteration] = bestSolution.getFitness();
 			iteration++;
 			if(optimo> bestSolution.getFitness()){
+				
 				optimo=bestSolution.getFitness();
 				iterationOpt=iteration;	
 				iterationEstancadap=iterationEstancadaPopulation=0;
 				
 			}else{
 				iterationEstancadap++;
-				
 				iterationEstancadaPopulation++;
 			}
+		
 		//	PrintSolutions(iteration);
 			//iterationEstancadap=AutonomousSearchP(iterationEstancadap,paramAutonomous);	
-			//iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
+		//	iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
 		}	
 	//Statistics.createConvergenciGraph(data.getIdentificator(), vector_fitness, directoryName,ejecucion,ejecuciones);
 		var[0]=iterationOpt;
@@ -323,7 +324,9 @@ public class MonarchOptimization {
 		int CantIntEstan = Integer.parseInt(parametros[0]);
 		int CantModoEstan = Integer.parseInt(parametros[1]);;
 		int step=Integer.parseInt(parametros[2]);
+		System.out.println("iteraciones "+iteraciones+"cant it etan"+CantIntEstan+"pobalcion"+poblation.size());
 		switch (modoPopulation){
+		
 		case 0: if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&poblation.size()<=150){ //aumentar la poblacion
 					for(	int i=0;i<step;i++){
 						addRandomSolutionToPoblation();	
@@ -336,7 +339,7 @@ public class MonarchOptimization {
 					iteraciones=0;
 				}
 								break;
-		case 1: if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&poblation.size()>step){ //disminuir la poblacion
+		case 1: if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&poblation.size()>step){ //disminuir la poblacion			
 				for(int i=0;i<step;i++){
 					deleteRandomSolutionToPoblation();	
 				}
