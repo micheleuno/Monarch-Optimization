@@ -240,4 +240,36 @@ public class Statistics {
 			e.printStackTrace();
 		}
 	}
+	public static void writeRunTime(int fila, String directoryName,String var){
+		String directory = "Sumary [" + directoryName + "].xls";
+		File file = new File(directory);
+		try {
+		if (file.exists()) {
+			HSSFWorkbook workbook = new HSSFWorkbook(new FileInputStream("Sumary [" + directoryName + "].xls"));
+			HSSFSheet sheet = workbook.getSheet("Hoja 1");
+
+			Row row;
+			Cell cell;
+			row = sheet.createRow(fila + 1);
+			cell = row.createCell(0);
+			cell.setCellValue(var);
+			
+			
+			
+			
+			
+			FileOutputStream out = new FileOutputStream(new File("Sumary [" + directoryName + "].xls"));
+			workbook.write(out);
+			out.close();
+
+			workbook.close();
+		}
+		} catch (FileNotFoundException e) {
+
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
 }

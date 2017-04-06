@@ -154,6 +154,7 @@ public class Main {
 		}
 		long finejecucion = System.currentTimeMillis();
 		System.out.println("Run time= "+((float)(finejecucion-inicioejecucion)/60000)+" minutos");
+		Statistics.writeRunTime(numIteracion, currentDirectory, "Run time= "+((float)(finejecucion-inicioejecucion)/60000)+" minutos");
 		}
 	
 		br.close();

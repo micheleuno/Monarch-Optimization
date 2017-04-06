@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,16 +34,15 @@ public class MonarchOptimization {
 	private ArrayList<Solution> poblation; // Un arreglo de soluciones
 	private Solution bestSolution, tempSolution,worstSolution,tempSolution2,auxSolution; // Mejor Solucion
 	int tempFitness = 0;
-	private int cont =0;
 	private double promedio = 0f;
 	int backFitness=0;
 	int iterationAutonomousSearch=5;
 	int poblationIncrease=5;
 
 	private int matrizSimilitud[][];
-	private int modoDelta = 1;
+	private int modoDelta = 0;
 	private int modoPopulation = 1;
-	private double varMin = 9999f;
+	private double varMin = 999999f;
 	private double varMax = 0f;
 	// Dataset (benchmark)
 	private MCDPData data;
@@ -79,6 +80,7 @@ public class MonarchOptimization {
 		calcularSimilitudMaquinas();
 		generateInitialPoblation();
 		chooseBestSolutionInPoblation();
+		promedio = calculateAverageFitness();
 		int iteration = 0;
 		int iterationOpt = 0;
 		int optimo = 9999999;
@@ -89,6 +91,8 @@ public class MonarchOptimization {
 		while (iteration < this.numberIteration) {
 		
 	//PrintSolutions(iteration);
+	Collections.sort(poblation, new compareFitness());//ordenar ascendentemente por fitness
+	
 			NP1 = (int) Math.round(p*(poblation.size())); //calcular poblacion land1
 			NP2 = poblation.size() - NP1; 		// calcular poblacion land2
 			numberPoblation=poblation.size();
@@ -139,6 +143,7 @@ public class MonarchOptimization {
 				
 			}else{
 				iterationEstancadap++;
+				
 				iterationEstancadaPopulation++;
 			}
 		//	PrintSolutions(iteration);
@@ -159,19 +164,17 @@ public class MonarchOptimization {
 		Solution auxSolution=tempSolution;
 		vectorMaquinaActual = matrixToVector(poblation.get(butterfly).getMachine_cell());
 		while (constraintOK == false) {
-			int cont = 0;
 			vectorAux = vectorMaquinaActual;
 			for (int i = 0; i < data.M; i++) { //para todos los elementos de la mariposa
 				int randomNum = ThreadLocalRandom.current().nextInt(-100, 100);
 				double r=randomNum*peri;
 				 Random randomGenerator = new Random();
 				 
-				if(r<=p||cont>=data.M){ //moviemiento 1
+				if(r<=p){ //moviemiento 1
 					
 					 int randomInt = randomGenerator.nextInt(NP1); //random de la primera poblacion
 					 vectorAux[i] = GetVectorValue(i,poblation.get(randomInt).getMachine_cell());					 
 				}else{//moviemiento 2
-					cont++;
 					int randomInt = ThreadLocalRandom.current().nextInt(NP1, poblation.size());//random de la segunda poblacion
 					 vectorAux[i] = GetVectorValue(i,poblation.get(randomInt).getMachine_cell());				
 				}
@@ -275,34 +278,41 @@ public class MonarchOptimization {
 		int CantIntEstan = Integer.parseInt(parametros[0]);
 		int CantModoEstan = Integer.parseInt(parametros[1]);
 		double step=Double.parseDouble(parametros[2]);
-		
+		double promedioactual=calculateAverageFitness();
+		double variacion = (1+promedioactual-promedio);
+		//System.out.println("Razon promedios "+variacion+" p "+p+" step "+step);
 		switch (modoDelta){
 		case 0: 
-			if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&p+step<=1.01f){ //aumentar delta de probabilidad
-				p = p+step;	
+			if(variacion>0.8f&&(p+(variacion*step))<=0.7f){ //aumentar delta de probabilidad
+				
+				p = p+variacion*step;	
 			if(p>varMax)
 				varMax=p;
 				}
-				if(iteraciones>CantModoEstan){ //Si van dos aumentos y aun no mejora
+				if(p+variacion*step>=0.7f){ //Si van dos aumentos y aun no mejora
 					modoDelta=1;						 //Se cambia al modo de disminuir
 					iteraciones=0;
 				}
 								break;
-		case 1: if(iteraciones>=CantIntEstan&&p-step>=0.099f){ //disminuir delta de probabilidad
-			p = p-step;		
-			if(p<varMin)
+		case 1: if(variacion>0.8&&p-(variacion*step)>=0.099f){ //disminuir delta de probabilidad
+			p = p-variacion*step;	
+			
+			if(p<varMin){
+				
 				varMin=p;
+				}
 			}
-			if(iteraciones>CantModoEstan){ //Si van dos aumentos y aun no mejora
+			if(p-variacion*step<=0.099f){ //Si van dos aumentos y aun no mejora
 				modoDelta=0;						 //Se cambia al modo de aumentar
 				iteraciones=0;
 			}
 			
 			break;
 		}
-	//	System.out.println("Iteracion estancada: "+iteraciones+" Delta: "+delta+" modo: ");
+	//	System.out.println("modo "+modoDelta+" p "+p);
 		
 		SMax=p;
+		promedio=promedioactual;
 		return iteraciones;
 		
 	}
@@ -342,6 +352,21 @@ public class MonarchOptimization {
 		}
 		return iteraciones;
 		
+	}
+	
+	class compareFitness implements Comparator<Solution> {
+		@Override
+		public int compare(Solution arg0, Solution arg1) {
+			return arg0.getFitness() - arg1.getFitness();
+		}
+	}
+	private double calculateAverageFitness(){
+		double promedio=0f;
+		for (int i=0;i<poblation.size();i++){
+		
+			promedio=promedio+	poblation.get(i).getFitness();
+		}
+		return promedio/poblation.size();
 	}
 	
 	boolean checkconstraints(int butterfly,Solution solution){
@@ -721,8 +746,8 @@ public class MonarchOptimization {
 
 	private int aproximar(double movimiento) {
 		int aproximado = 0;
-		promedio=promedio+movimiento;
-		cont++;
+	
+		
 		
 		aproximado = Math.round((float) movimiento);
 	//	aproximado = (int) VShaped.V2(movimiento);
@@ -801,7 +826,9 @@ public class MonarchOptimization {
 			}
 			System.out.println(Arrays.toString(matrixToVector(poblation.get(i).getMachine_cell()))+" Fitness " + poblation.get(i).getFitness());
 		}
-		System.out.println("Mejor Solucion: "+bestSolution.getFitness());
+		if(k==this.numberIteration)
+			System.out.println("Fin de la ejecucion");
+		System.out.println("Mejor Solucion: "+bestSolution.getFitness()+" Fitness promedio: "+calculateAverageFitness() );
 		try {
 			System.in.read();
 		} catch (IOException e) {
