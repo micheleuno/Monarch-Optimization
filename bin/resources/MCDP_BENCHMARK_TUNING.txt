@@ -1,0 +1,16 @@
+#-----FILE-DETAILS------------------------------------
+File details=
+Version=1
+Created by=
+Date created=
+Modified by=
+Date modified=
+#-----BECHMARK-INFO-----------------------------------
+Benchmark info=
+References=
+Best Solution=
+#-----MCDP-VALUES-------------------------------------
+n=3,5,7,9,13,19,25,51,101,201
+k=3,5,7,9,13,19,25,51,101
+m=1,2,5,10,20,40,80
+x=1,2,3,4,5,6,7,8,9

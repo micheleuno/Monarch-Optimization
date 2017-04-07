@@ -90,7 +90,7 @@ public class MonarchOptimization {
 		
 		while (iteration < this.numberIteration) {
 		
-//	PrintSolutions(iteration);
+	//PrintSolutions(iteration);
 	Collections.sort(poblation, new compareFitness());//ordenar ascendentemente por fitness
 	
 			NP1 = (int) Math.round(p*(poblation.size())); //calcular poblacion land1
@@ -149,7 +149,7 @@ public class MonarchOptimization {
 		
 		//	PrintSolutions(iteration);
 			//iterationEstancadap=AutonomousSearchP(iterationEstancadap,paramAutonomous);	
-		//	iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
+			iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
 		}	
 	//Statistics.createConvergenciGraph(data.getIdentificator(), vector_fitness, directoryName,ejecucion,ejecuciones);
 		var[0]=iterationOpt;
@@ -324,7 +324,7 @@ public class MonarchOptimization {
 		int CantIntEstan = Integer.parseInt(parametros[0]);
 		int CantModoEstan = Integer.parseInt(parametros[1]);;
 		int step=Integer.parseInt(parametros[2]);
-		System.out.println("iteraciones "+iteraciones+"cant it etan"+CantIntEstan+"pobalcion"+poblation.size());
+		//System.out.println("iteraciones "+iteraciones+"cant it etan"+CantIntEstan+"pobalcion"+poblation.size());
 		switch (modoPopulation){
 		
 		case 0: if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&poblation.size()<=150){ //aumentar la poblacion
@@ -580,16 +580,22 @@ public class MonarchOptimization {
 	private void deleteRandomSolutionToPoblation(){
 		  Random randomGenerator = new Random();
 		 int randomInt = randomGenerator.nextInt(poblation.size());
+		 int cont=0;
 		boolean flag = false;
 		 do{
 			// System.out.println("deleting");
-			 if(!Arrays.equals(poblation.get(randomInt).getMachine_cell(), bestSolution.getMachine_cell())){
+			 if(poblation.get(randomInt).getFitness()!=bestSolution.getFitness()){
 				// System.out.println("Best solution: "+bestSolution+ " solucion eliminada: "+poblation.get(randomInt).getFitness()+" Random: "+randomInt);
 				 poblation.remove(randomInt);
 				 flag=true;
+				return;
+				
+			 }else{
+				 poblation.remove(1);
+				 flag=true;
+				 return;
 			 }
-				 
-			 randomInt = randomGenerator.nextInt(poblation.size());
+				
 		 }while(flag==false);
 	}
 	
