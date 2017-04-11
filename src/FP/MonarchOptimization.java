@@ -287,7 +287,7 @@ public class MonarchOptimization {
 		
 		case 0: 
 			
-			if(variacion>0.8f&&(SMax+(variacion*step))<=100f){ //aumentar delta de probabilidad
+			if(variacion>0.5f&&(SMax+(variacion*step))<=100f){ //aumentar delta de probabilidad
 				//System.out.println("Razon promedios "+variacion+" SMAx "+SMax+" step "+step+" asd "+(SMax+(variacion*step)));
 				SMax = SMax+variacion*step;	
 			if(SMax>varMax)
@@ -298,7 +298,7 @@ public class MonarchOptimization {
 					iteraciones=0;
 				}
 								break;
-		case 1: if(variacion>0.8&&SMax-(variacion*step)>=2f){ //disminuir delta de probabilidad
+		case 1: if(variacion>0.5&&SMax-(variacion*step)>=2f){ //disminuir delta de probabilidad
 		
 			SMax = SMax-variacion*step;	
 			
