@@ -29,6 +29,7 @@ public class MonarchOptimization {
 	private double p;
 	
 	private int vector_fitness[];
+	private double vector_Avgfitness[],vectorp[];
 	Grafico grafico = null;
 	private String directoryName = null;
 	private ArrayList<Solution> poblation; // Un arreglo de soluciones
@@ -87,7 +88,8 @@ public class MonarchOptimization {
 		double[] var = new double[3];
 		int iterationEstancadap = 0,iterationEstancadaPopulation=0;
 		rn = new Random();
-		
+		vector_Avgfitness= new double[numberIteration];
+		vectorp=new double[numberIteration];
 		while (iteration < this.numberIteration) {
 		
 	//PrintSolutions(iteration);
@@ -135,6 +137,8 @@ public class MonarchOptimization {
 					}
 				}
 			vector_fitness[iteration] = bestSolution.getFitness();
+			vector_Avgfitness[iteration] = promedio;
+			vectorp[iteration] = poblation.size();
 			iteration++;
 			if(optimo> bestSolution.getFitness()){
 				
@@ -148,10 +152,12 @@ public class MonarchOptimization {
 			}
 		
 		//	PrintSolutions(iteration);
-			//iterationEstancadap=AutonomousSearchP(iterationEstancadap,paramAutonomous);	
-			iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
+			iterationEstancadap=AutonomousSearchP(iterationEstancadap,paramAutonomous);	
+			//System.out.println(p);
+			//iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
 		}	
 	//Statistics.createConvergenciGraph(data.getIdentificator(), vector_fitness, directoryName,ejecucion,ejecuciones);
+		//Statistics.createConvergenciGraph2(data.getIdentificator(), vector_fitness,vector_Avgfitness,vectorp, directoryName,ejecucion,ejecuciones);
 		var[0]=iterationOpt;
 		var[1]=varMin;
 		var[2]=varMax;
@@ -235,12 +241,7 @@ public class MonarchOptimization {
 		auxSolution.setFitness(updateFitness(auxSolution));
 		//System.out.println(auxSolution.getFitness()+" final "+Arrays.toString(matrixToVector(auxSolution.getMachine_cell())));
 		tempSolution=auxSolution;
-	/*	try {
-			System.in.read();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+	
 	}
 	
 	void  generateCrossoverOperator(int butterfly){
@@ -281,38 +282,41 @@ public class MonarchOptimization {
 		double step=Double.parseDouble(parametros[2]);
 		double promedioactual=calculateAverageFitness();
 		double variacion = (1+promedioactual-promedio);
-		//System.out.println("Razon promedios "+variacion+" p "+p+" step "+step);
+		//System.out.println("Razon promedios "+variacion+" SMAx "+SMax+" step "+step+" asd "+(SMax+(variacion*step)));
 		switch (modoDelta){
+		
 		case 0: 
-			if(variacion>0.8f&&(p+(variacion*step))<=0.7f){ //aumentar delta de probabilidad
-				
-				p = p+variacion*step;	
-			if(p>varMax)
-				varMax=p;
+			
+			if(variacion>0.8f&&(SMax+(variacion*step))<=100f){ //aumentar delta de probabilidad
+				//System.out.println("Razon promedios "+variacion+" SMAx "+SMax+" step "+step+" asd "+(SMax+(variacion*step)));
+				SMax = SMax+variacion*step;	
+			if(SMax>varMax)
+				varMax=SMax;
 				}
-				if(p+variacion*step>=0.7f){ //Si van dos aumentos y aun no mejora
+				if(SMax+variacion*step>=100f){ //Si van dos aumentos y aun no mejora
 					modoDelta=1;						 //Se cambia al modo de disminuir
 					iteraciones=0;
 				}
 								break;
-		case 1: if(variacion>0.8&&p-(variacion*step)>=0.099f){ //disminuir delta de probabilidad
-			p = p-variacion*step;	
+		case 1: if(variacion>0.8&&SMax-(variacion*step)>=2f){ //disminuir delta de probabilidad
+		
+			SMax = SMax-variacion*step;	
 			
-			if(p<varMin){
+			if(SMax<varMin){
 				
-				varMin=p;
+				varMin=SMax;
 				}
 			}
-			if(p-variacion*step<=0.099f){ //Si van dos aumentos y aun no mejora
+			if(SMax-variacion*step<=2f){ //Si van dos aumentos y aun no mejora
 				modoDelta=0;						 //Se cambia al modo de aumentar
 				iteraciones=0;
 			}
 			
 			break;
 		}
-	//	System.out.println("modo "+modoDelta+" p "+p);
 		
-		SMax=p;
+		
+		
 		promedio=promedioactual;
 		return iteraciones;
 		
@@ -578,7 +582,8 @@ public class MonarchOptimization {
 	}
 	
 	private void deleteRandomSolutionToPoblation(){
-		  Random randomGenerator = new Random();
+		poblation.remove(2);
+		/*  Random randomGenerator = new Random();
 		 int randomInt = randomGenerator.nextInt(poblation.size());
 		 int cont=0;
 		boolean flag = false;
@@ -596,7 +601,7 @@ public class MonarchOptimization {
 				 return;
 			 }
 				
-		 }while(flag==false);
+		 }while(flag==false);*/
 	}
 	
 

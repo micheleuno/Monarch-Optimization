@@ -6,4 +6,4 @@ peri=0.2f
 p=0.416f
 Ejecuciones=31
 It s/mod - Modo s/mod - Step
-1-2-2
+2-4-3f

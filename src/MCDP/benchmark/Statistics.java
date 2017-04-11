@@ -102,6 +102,63 @@ public class Statistics {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	public static void createConvergenciGraph2(String identificator, int[] mejorfitness,double[] promedio,double[] var ,String directoryName,int ejecucion, int ejecuciones) {
+		try {
+
+			HSSFWorkbook workbook = new HSSFWorkbook();
+			HSSFSheet sheet = workbook.createSheet("Hoja 1");
+			
+			String directory = directoryName + "/" + identificator + ".xls";
+			File file = new File(directory);	
+	
+				int fila = 0;
+				Row row;
+				Cell cell;
+				row = sheet.createRow(0);
+
+				cell = row.createCell(0);
+				cell.setCellValue("Iteracion");
+				cell = row.createCell(1);
+				cell.setCellValue("Best");
+				cell = row.createCell(2);
+				cell.setCellValue("Average");
+				cell = row.createCell(3);
+				cell.setCellValue("Paremeter");
+
+				while (fila < mejorfitness.length) {
+					row = sheet.createRow(fila + 1);
+					cell = row.createCell(0);
+					cell.setCellValue(fila + 1);
+					cell = row.createCell(1);
+					cell.setCellValue(mejorfitness[fila]);
+					cell = row.createCell(2);
+					cell.setCellValue(promedio[fila]);
+					cell = row.createCell(3);
+					cell.setCellValue(var[fila]);
+					fila++;
+				}
+				FileOutputStream out = new FileOutputStream(new File(directoryName + "/" + identificator + ".xls"));
+				workbook.write(out);
+				out.close();
+				workbook.close();
+				
+			
+			
+		
+			
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	
+	
 
 	public static void createTable(int fila, int mmax, int bestGlobal, int bestFitness, float meanFitness,String nProblema, String directoryName, int numCell, float iterationOptAvg,long averageTime,double[]variables,int maquinas, int partes) {
 		System.out.println(directoryName);
@@ -253,10 +310,6 @@ public class Statistics {
 			row = sheet.createRow(fila + 1);
 			cell = row.createCell(0);
 			cell.setCellValue(var);
-			
-			
-			
-			
 			
 			FileOutputStream out = new FileOutputStream(new File("Sumary [" + directoryName + "].xls"));
 			workbook.write(out);
