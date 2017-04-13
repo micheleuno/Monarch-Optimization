@@ -116,7 +116,7 @@ public class Main {
 			SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss.SSS", Locale.ENGLISH);
 			Date resultdate = new Date(startBenchmark);
 			System.out.println("Process Start, with " + executions + " executions: " + sdf.format(resultdate));
-
+			ejecutionTimeAvg=0;
 			for (int i = 0; i < executions; i++) {
 			
 				MonarchOptimization metaheuristic = new MonarchOptimization(numberPoblation, numberIteration, model, SMax,
