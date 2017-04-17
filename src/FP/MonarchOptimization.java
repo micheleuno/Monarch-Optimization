@@ -91,7 +91,6 @@ public class MonarchOptimization {
 		vector_Avgfitness= new double[numberIteration];
 		vectorp=new double[numberIteration];
 		while (iteration < this.numberIteration) {
-		
 	//PrintSolutions(iteration);
 	Collections.sort(poblation, new compareFitness());//ordenar ascendentemente por fitness
 	
@@ -138,7 +137,7 @@ public class MonarchOptimization {
 				}
 			vector_fitness[iteration] = bestSolution.getFitness();
 			vector_Avgfitness[iteration] = promedio;
-			vectorp[iteration] = poblation.size();
+			vectorp[iteration] = SMax;
 			iteration++;
 			if(optimo> bestSolution.getFitness()){
 				
@@ -152,7 +151,7 @@ public class MonarchOptimization {
 			}
 		
 		//	PrintSolutions(iteration);
-			iterationEstancadap=AutonomousSearchP(iterationEstancadap,paramAutonomous);	
+			iterationEstancadap=AutonomousSearchP(iteration,paramAutonomous);	
 			//System.out.println(p);
 			//iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
 		}	
@@ -277,42 +276,37 @@ public class MonarchOptimization {
 	public int AutonomousSearchP(int iteraciones,String ParamAutonomous){
 		String parametros[];
 		parametros= ParamAutonomous.split("-");
-		int CantIntEstan = Integer.parseInt(parametros[0]);
-		int CantModoEstan = Integer.parseInt(parametros[1]);
 		double step=Double.parseDouble(parametros[2]);
 		double promedioactual=calculateAverageFitness();
 		double variacion = (1+promedioactual-promedio);
-		//System.out.println("Razon promedios "+variacion+" SMAx "+SMax+" step "+step+" asd "+(SMax+(variacion*step)));
+		//System.out.println("Razon promedios "+variacion+" SMAx "+SMax+" step "+step+" asd "+(SMax+(variacion*step))+" delta "+modoDelta+" asd 2 "+((float)iteraciones/(float)this.numberIteration));
 		switch (modoDelta){
 		
 		case 0: 
-			
-			if(variacion>0.5f&&(SMax+(variacion*step))<=100f){ //aumentar delta de probabilidad
-				//System.out.println("Razon promedios "+variacion+" SMAx "+SMax+" step "+step+" asd "+(SMax+(variacion*step)));
-				SMax = SMax+variacion*step;	
-			if(SMax>varMax)
-				varMax=SMax;
+				//System.out.println("variacion "+variacion+" Cosa "+(SMax+variacion*step)+" cosas "+(200f*((float)iteraciones/(float)this.numberIteration))+" SMax "+SMax+" modo "+modoDelta);
+				if(variacion>0.8f&&(SMax+variacion*step)<=(1000f*((float)iteraciones/(float)this.numberIteration))){
+					//System.out.println("Aumento "+"Razon promedios "+variacion+" SMAx "+SMax+" step "+step+" asd "+(SMax+(variacion*step)));
+					SMax = SMax+(variacion*step);	
+					if(SMax>varMax){
+						varMax=SMax;
+					}
+									
+				}else{
+						modoDelta=1;
 				}
-				if(SMax+variacion*step>=100f){ //Si van dos aumentos y aun no mejora
-					modoDelta=1;						 //Se cambia al modo de disminuir
-					iteraciones=0;
+				break;
+		case 1: 
+				//System.out.println("variacion2 "+variacion+" Cosa "+(SMax+variacion*step)+" cosas "+((float)iteraciones/(float)this.numberIteration)+" SMax "+SMax+" modo "+modoDelta);
+				if(variacion>0.8&&(SMax-(variacion*step))>=1f/((float)iteraciones/(float)this.numberIteration)){ //disminuir delta de probabilidad
+					//System.out.println("Disminucion"+"Razon promedios "+variacion+" SMAx "+SMax+" step "+step+" asd "+(SMax+(variacion*step)));
+					SMax = SMax-(variacion*step);
+					if(SMax<varMin){
+						varMin=SMax;
+					}
+				}else{
+					modoDelta=0;
 				}
-								break;
-		case 1: if(variacion>0.5&&SMax-(variacion*step)>=2f){ //disminuir delta de probabilidad
-		
-			SMax = SMax-variacion*step;	
-			
-			if(SMax<varMin){
-				
-				varMin=SMax;
-				}
-			}
-			if(SMax-variacion*step<=2f){ //Si van dos aumentos y aun no mejora
-				modoDelta=0;						 //Se cambia al modo de aumentar
-				iteraciones=0;
-			}
-			
-			break;
+				break;
 		}
 		
 		
@@ -328,35 +322,40 @@ public class MonarchOptimization {
 		int CantIntEstan = Integer.parseInt(parametros[0]);
 		int CantModoEstan = Integer.parseInt(parametros[1]);;
 		int step=Integer.parseInt(parametros[2]);
-		//System.out.println("iteraciones "+iteraciones+"cant it etan"+CantIntEstan+"pobalcion"+poblation.size());
+		double promedioactual=calculateAverageFitness();
+		double variacion = (1+promedioactual-promedio);
+//	System.out.println("variacion "+variacion+"step"+step+"pobalcion"+poblation.size()); 
 		switch (modoPopulation){
 		
-		case 0: if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&poblation.size()<=150){ //aumentar la poblacion
+		case 0: if(variacion>0.8f&&poblation.size()<=60){ //aumentar la poblacion
 					for(	int i=0;i<step;i++){
 						addRandomSolutionToPoblation();	
 					}
 					if(poblation.size()>varMax)
 						varMax=poblation.size();
 				}
-				if(iteraciones>CantModoEstan){ 
+				if(poblation.size()>=80){ 
 					modoPopulation=1;					
 					iteraciones=0;
 				}
 								break;
-		case 1: if(iteraciones%CantIntEstan==0&&iteraciones>=CantIntEstan&&poblation.size()>step){ //disminuir la poblacion			
+		case 1:
+			if(variacion>0.8f&&poblation.size()>step+5){ //disminuir la poblacion	
+			
 				for(int i=0;i<step;i++){
 					deleteRandomSolutionToPoblation();	
 				}
 				if(poblation.size()<varMin)
 					varMin=poblation.size();
 			}
-			if(iteraciones>CantModoEstan){ 
+			if(poblation.size()<=step+5){ 
 				modoPopulation=0;						
 				iteraciones=0;
 			}
 			
 			break;
 		}
+		promedio=promedioactual;
 		return iteraciones;
 		
 	}
