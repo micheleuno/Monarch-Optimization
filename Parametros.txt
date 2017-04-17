@@ -1,9 +1,9 @@
 Iteraciones=250
 Población=50
-Smax=4.0f
+Smax=1f
 BAR=0.416f
-peri=0.2f
+peri=1.2f
 p=0.416f
 Ejecuciones=31
 It s/mod - Modo s/mod - Step
-2-4-3f
+2-4-8
