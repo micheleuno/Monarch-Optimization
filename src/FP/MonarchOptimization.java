@@ -156,7 +156,7 @@ public class MonarchOptimization {
 			//iterationEstancadaPopulation=autonomousSearchPopulation(iterationEstancadaPopulation,paramAutonomous);
 		}	
 	//Statistics.createConvergenciGraph(data.getIdentificator(), vector_fitness, directoryName,ejecucion,ejecuciones);
-		//Statistics.createConvergenciGraph2(data.getIdentificator(), vector_fitness,vector_Avgfitness,vectorp, directoryName,ejecucion,ejecuciones);
+	Statistics.createConvergenciGraph2(data.getIdentificator(), vector_fitness,vector_Avgfitness,vectorp, directoryName,ejecucion,ejecuciones);
 		var[0]=iterationOpt;
 		var[1]=varMin;
 		var[2]=varMax;

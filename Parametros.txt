@@ -4,6 +4,6 @@ Smax=1f
 BAR=0.416f
 peri=1.2f
 p=0.416f
-Ejecuciones=31
+Ejecuciones=1
 It s/mod - Modo s/mod - Step
-2-4-8
+2-4-2
